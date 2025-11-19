@@ -1,0 +1,12 @@
+{"role": "user", "content": "WWho is a pig?"}
+x = {"role": "assistant", "content": "A pig is a 
+x = {"role": "assistant", "content": "A pig is a domesticated mammal known for its stout
+x = {"role": "assistant", "content": "A pig is a domesticated mammal known for its stout body, short legs, and a snout used for digging. Pigs are
+
+
+
+
+{"role": "user", "content": "WWho is a pig?"}
+x = {"role": "assistant", "content": "A pig is a" }
+y = {"role": "assistant", "content": "domesticated mammal known for" }
+z = {"role": "assistant", "content": "its stout body, short legs, and a snout used for digging. Pigs are" }
