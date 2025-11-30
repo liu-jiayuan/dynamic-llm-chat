@@ -49,15 +49,15 @@ class LLMTokenGenerator {
     updateStartButtonState() {
         const startBtn = document.getElementById('start-generation');
         const prompt = document.getElementById('user-prompt').value.trim();
+        const paramsValid = this.validateParameters();
         
-        startBtn.disabled = this.selectedModels.length === 0 || !prompt || this.isGenerating;
+        startBtn.disabled = this.selectedModels.length === 0 || !prompt || this.isGenerating || !paramsValid;
     }
     
     async startGeneration() {
         const prompt = document.getElementById('user-prompt').value.trim();
         const tokensPerTurn = parseInt(document.getElementById('tokens-per-turn').value) || 5;
         const maxTurns = parseInt(document.getElementById('max-turns').value) || 50;
-        const totalBudget = tokensPerTurn * maxTurns;
         
         if (this.selectedModels.length === 0) {
             alert('Please select at least one model (and enter API keys where required)!');
@@ -69,8 +69,7 @@ class LLMTokenGenerator {
             return;
         }
 
-        if (totalBudget > 5000) {
-            alert('Please ensure that (Tokens per Turn) × (Max Turns) is at most 5000 to keep the demo efficient.');
+        if (!this.validateParameters()) {
             return;
         }
         
@@ -203,6 +202,38 @@ class LLMTokenGenerator {
         const statsElement = document.getElementById('generation-stats');
         statsElement.textContent = `Generated ${this.currentTurn}/${this.maxTurns || 50} rounds | Using ${this.selectedModels.length} models`;
     }
+
+    validateParameters() {
+        const tokensInput = document.getElementById('tokens-per-turn');
+        const maxTurnsInput = document.getElementById('max-turns');
+        const errorElement = document.getElementById('param-error');
+
+        if (!tokensInput || !maxTurnsInput || !errorElement) {
+            return true;
+        }
+
+        const tokensPerTurn = parseInt(tokensInput.value, 10);
+        const maxTurns = parseInt(maxTurnsInput.value, 10);
+        const hasValues = !isNaN(tokensPerTurn) && !isNaN(maxTurns);
+
+        let isValid = true;
+        if (hasValues && tokensPerTurn > 0 && maxTurns > 0) {
+            isValid = tokensPerTurn * maxTurns <= 5000;
+        }
+
+        if (!isValid) {
+            tokensInput.classList.add('input-error');
+            maxTurnsInput.classList.add('input-error');
+            errorElement.style.display = 'block';
+            errorElement.textContent = '(Tokens per Turn) × (Max Turns) must be ≤ 5000.';
+        } else {
+            tokensInput.classList.remove('input-error');
+            maxTurnsInput.classList.remove('input-error');
+            errorElement.style.display = 'none';
+        }
+
+        return isValid;
+    }
     
     stopGeneration() {
         this.isGenerating = false;
@@ -258,8 +289,9 @@ class LLMTokenGenerator {
         const stopBtn = document.getElementById('stop-generation');
         const resetBtn = document.getElementById('reset-conversation');
         const promptInput = document.getElementById('user-prompt');
+        const paramsValid = this.validateParameters();
         
-        startBtn.disabled = this.isGenerating || this.selectedModels.length === 0 || !promptInput.value.trim();
+        startBtn.disabled = this.isGenerating || this.selectedModels.length === 0 || !promptInput.value.trim() || !paramsValid;
         stopBtn.disabled = !this.isGenerating;
         
         // Update button text
@@ -283,6 +315,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('user-prompt').addEventListener('input', () => {
         generator.updateStartButtonState();
     });
+
+    // 监听参数输入变化（tokens per turn 和 max turns）
+    ['tokens-per-turn', 'max-turns'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', () => {
+                generator.updateStartButtonState();
+            });
+        }
+    });
     
     // 监听API密钥输入变化
     document.querySelectorAll('.api-key-input').forEach(input => {
@@ -295,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     if (header && header.parentNode) {
         const notice = document.createElement('div');
-        notice.textContent = '提示：本服务使用免费托管，首次或长时间未访问后重新打开时，后台唤醒可能需要约 1 分钟，请耐心等待。';
+        notice.textContent = 'Note: This demo is hosted on a free tier. When the service has been idle, the first request may take up to about 1 minute while the backend wakes up.';
         notice.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
         notice.style.color = '#4a5568';
         notice.style.padding = '10px 16px';
@@ -307,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notice.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
 
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = '知道了';
+        closeBtn.textContent = 'Got it';
         closeBtn.style.marginLeft = '12px';
         closeBtn.style.padding = '4px 10px';
         closeBtn.style.fontSize = '12px';

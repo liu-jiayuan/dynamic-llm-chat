@@ -40,18 +40,19 @@
     <div class="container">
         <header>
             <h1>FOCAL LLM Alternating Chat Demo</h1>
-            <p>
-                This demo alternately samples tokens from multiple LLMs. Select the models you want to compare, set the tokens per turn and maximum number of turns, then start generation. The selected LLMs will take turns generating short continuations conditioned on the shared context.
-            </p>
         </header>
 
         <div class="setup-section">
             <div class="card">
                 <h2>1. Select Models and API Keys</h2>
 
+                <p class="api-note">
+                    This demo shows multiple LLMs alternately generates response tokens according to your input prompt. Select the models you want to compare, set the tokens per turn and maximum number of turns, then start generation. The selected LLMs will take turns generating short continuations conditioned on the shared context.
+                </p>
+
                 <!-- Category 1: Cloudflare models (no API key needed) -->
                 <h3>Category 1: Cloudflare models (no API key needed)</h3>
-                <p class="api-note">Using server-side API credentials; no API key input required for these models before June 2026.</p>
+                <p class="api-note">Using server-side API credentials; currently, no API key input required for these models.</p>
                 <div class="models-grid" style="margin-top: 10px;">
                     <!-- Cloudflare Workers AI Models -->
                     <div class="model-group">
@@ -180,22 +181,24 @@
 
             <div class="card">
                 <h2>2. Configure Parameters</h2>
+                <p class="api-note">For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.</p>
                 <div class="param-section">
                     <div class="param-group">
                         <label for="tokens-per-turn">
-                            Tokens per Turn
-                            <span class="param-tooltip" title="For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.">*</span>:
+                            Tokens per Turn<span class="param-tooltip" title="For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.">*</span>:
                         </label>
                         <input type="number" id="tokens-per-turn" value="5" min="1" max="100">
                     </div>
                     <div class="param-group">
                         <label for="max-turns">
-                            Max Turns
-                            <span class="param-tooltip" title="For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.">*</span>:
+                            Max Turns<span class="param-tooltip" title="For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.">*</span>:
                         </label>
                         <input type="number" id="max-turns" value="30" min="1" max="100">
                     </div>
                 </div>
+                <p id="param-error" class="param-error" style="display: none;">
+                    (Tokens per Turn) × (Max Turns) must be ≤ 5000.
+                </p>
             </div>
 
             <div class="card">
@@ -228,8 +231,7 @@
 
         <footer class="app-footer">
             <p>
-                Have improvement ideas or issues?
-                Email
+                Have improvement ideas or issues, or want to connect with the developers? Email
                 <a href="mailto:jiayuan4@andrew.cmu.edu">jiayuan4@andrew.cmu.edu</a>.
             </p>
         </footer>
