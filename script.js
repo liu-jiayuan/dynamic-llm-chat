@@ -333,39 +333,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 冷启动提示：提醒用户首次访问可能需要等待一段时间
-    const header = document.querySelector('header');
-    if (header && header.parentNode) {
-        const notice = document.createElement('div');
-        notice.textContent = 'Note: This demo is hosted on a free tier. When the service has been idle, the first request may take up to about 1 minute while the backend wakes up.';
-        notice.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-        notice.style.color = '#4a5568';
-        notice.style.padding = '10px 16px';
-        notice.style.borderRadius = '8px';
-        notice.style.margin = '10px auto 20px';
-        notice.style.maxWidth = '900px';
-        notice.style.fontSize = '14px';
-        notice.style.textAlign = 'center';
-        notice.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = 'Got it';
-        closeBtn.style.marginLeft = '12px';
-        closeBtn.style.padding = '4px 10px';
-        closeBtn.style.fontSize = '12px';
-        closeBtn.style.borderRadius = '999px';
-        closeBtn.style.border = 'none';
-        closeBtn.style.cursor = 'pointer';
-        closeBtn.style.backgroundColor = '#4299e1';
-        closeBtn.style.color = '#ffffff';
-
-        closeBtn.addEventListener('click', () => {
-            notice.remove();
-        });
-
-        notice.appendChild(closeBtn);
-        header.parentNode.insertBefore(notice, header.nextSibling);
-    }
-
     console.log('🚀 Multi-LLM Token Generator initialized!');
 });

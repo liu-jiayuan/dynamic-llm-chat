@@ -37,10 +37,15 @@ header p {
 }
 
 .api-note {
-    font-size: 0.85rem;
-    color: #4a5568;
-    margin-top: 4px;
+    font-size: 1rem;
+    color: #374151;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    text-align: left;
+    text-indent: 2em;
 }
+
+/* .api-intro no longer used; keep base .api-note for text styling */
 
 .api-help {
     display: inline-block;
@@ -75,6 +80,11 @@ header p {
 .input-error {
     border-color: #e53e3e !important;
     box-shadow: 0 0 0 1px rgba(229, 62, 62, 0.3);
+}
+
+/* Ensure API key inputs are left-aligned within model groups */
+.model-group .api-key-input {
+    text-align: left;
 }
 
 /* Card Styles */
@@ -141,7 +151,7 @@ header p {
 }
 
 .model-option label {
-    min-width: 120px;
+    flex: 0 0 170px; /* fixed label width to align inputs */
     cursor: pointer;
     font-weight: 500;
     color: #4a5568;

@@ -42,31 +42,20 @@
             <h1>FOCAL LLM Alternating Chat Demo</h1>
         </header>
 
+        <p class="api-note">
+            This demo shows multiple LLMs alternately generates response tokens according to your input prompt. Select the models you want to compare, set the tokens per turn and maximum number of turns, then start generation. The selected LLMs will take turns generating short continuations conditioned on the shared context.
+        </p>
+
         <div class="setup-section">
             <div class="card">
                 <h2>1. Select Models and API Keys</h2>
 
-                <p class="api-note">
-                    This demo shows multiple LLMs alternately generates response tokens according to your input prompt. Select the models you want to compare, set the tokens per turn and maximum number of turns, then start generation. The selected LLMs will take turns generating short continuations conditioned on the shared context.
-                </p>
-
-                <!-- Category 1: Cloudflare models (no API key needed) -->
-                <h3>Category 1: Cloudflare models (no API key needed)</h3>
+                <!-- Category 1: some smaller-sized open-weighted models (no API key needed) -->
+                <h3>Category 1: some smaller-sized open-weighted models (no API key needed)</h3>
                 <p class="api-note">Using server-side API credentials; currently, no API key input required for these models.</p>
                 <div class="models-grid" style="margin-top: 10px;">
-                    <!-- Cloudflare Workers AI Models -->
+                    <!-- Models using server-side Cloudflare credentials -->
                     <div class="model-group">
-                        <h3>🌤️ Cloudflare Workers AI</h3>
-                        <div class="model-option">
-                            <input type="checkbox" id="gpt-oss-120b-cf" value="@cf/openai/gpt-oss-120b" data-provider="cloudflare">
-                            <label for="gpt-oss-120b-cf">GPT-OSS-120B</label>
-                            <input type="text" id="gpt-oss-120b-cf-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="gpt-oss-20b-cf" value="@cf/openai/gpt-oss-20b" data-provider="cloudflare">
-                            <label for="gpt-oss-20b-cf">GPT-OSS-20B</label>
-                            <input type="text" id="gpt-oss-20b-cf-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
-                        </div>
                         <div class="model-option">
                             <input type="checkbox" id="llama-4-scout" value="@cf/meta/llama-4-scout-17b-16e-instruct" data-provider="cloudflare">
                             <label for="llama-4-scout">Llama 4 Scout 17B</label>
@@ -83,13 +72,18 @@
                             <input type="text" id="llama-3-1-8b-fast-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
                         </div>
                         <div class="model-option">
+                            <input type="checkbox" id="llama-3-2-3b" value="@cf/meta/llama-3.2-3b-instruct" data-provider="cloudflare">
+                            <label for="llama-3-2-3b">Llama 3.2 3B Instruct</label>
+                            <input type="text" id="llama-3-2-3b-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
                             <input type="checkbox" id="gemma-3-12b" value="@cf/google/gemma-3-12b-it" data-provider="cloudflare">
                             <label for="gemma-3-12b">Gemma 3 12B</label>
                             <input type="text" id="gemma-3-12b-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
                         </div>
                         <div class="model-option">
-                            <input type="checkbox" id="mistral-small" value="@cf/mistral/mistral-small-3.1-24b-instruct" data-provider="cloudflare">
-                            <label for="mistral-small">Mistral Small 3.1 24B</label>
+                            <input type="checkbox" id="mistral-small" value="@cf/mistral/mistral-7b-instruct-v0.1" data-provider="cloudflare">
+                            <label for="mistral-small">Mistral 7B Instruct v0.1</label>
                             <input type="text" id="mistral-small-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
                         </div>
                         <div class="model-option">
@@ -112,14 +106,19 @@
                             <a href="https://platform.openai.com/api-keys" target="_blank" class="api-help" title="Where to get an OpenAI API key">?</a>
                         </h3>
                         <div class="model-option">
+                            <input type="checkbox" id="gpt-4o" value="gpt-4o" data-provider="openai">
+                            <label for="gpt-4o">GPT-4o</label>
+                            <input type="text" id="gpt-4o-key" placeholder="Enter your own OpenAI API Key" class="api-key-input">
+                        </div>
+                        <div class="model-option">
                             <input type="checkbox" id="gpt-4o-mini" value="gpt-4o-mini" data-provider="openai">
                             <label for="gpt-4o-mini">GPT-4o-mini</label>
                             <input type="text" id="gpt-4o-mini-key" placeholder="Enter your own OpenAI API Key" class="api-key-input">
                         </div>
                         <div class="model-option">
-                            <input type="checkbox" id="o1-mini" value="o1-mini" data-provider="openai">
-                            <label for="o1-mini">O1-Mini</label>
-                            <input type="text" id="o1-mini-key" placeholder="Enter your own OpenAI API Key" class="api-key-input">
+                            <input type="checkbox" id="gpt-3-5-turbo" value="gpt-3.5-turbo" data-provider="openai">
+                            <label for="gpt-3-5-turbo">GPT-3.5 Turbo</label>
+                            <input type="text" id="gpt-3-5-turbo-key" placeholder="Enter your own OpenAI API Key" class="api-key-input">
                         </div>
                     </div>
 
@@ -153,11 +152,6 @@
                             <label for="deepseek-chat">DeepSeek Chat</label>
                             <input type="text" id="deepseek-chat-key" placeholder="Enter your own DeepSeek API Key" class="api-key-input">
                         </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="deepseek-reasoner" value="deepseek-reasoner" data-provider="deepseek">
-                            <label for="deepseek-reasoner">DeepSeek Reasoner</label>
-                            <input type="text" id="deepseek-reasoner-key" placeholder="Enter your own DeepSeek API Key" class="api-key-input">
-                        </div>
                     </div>
 
                     <!-- Gemini Models -->
@@ -166,14 +160,28 @@
                             <a href="https://aistudio.google.com/app/apikey" target="_blank" class="api-help" title="Where to get a Google Gemini API key">?</a>
                         </h3>
                         <div class="model-option">
-                            <input type="checkbox" id="gemini-flash" value="gemini-1.5-flash" data-provider="gemini">
-                            <label for="gemini-flash">Gemini 1.5 Flash</label>
-                            <input type="text" id="gemini-flash-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
+                            <input type="checkbox" id="gemini-3-pro" value="gemini-3-pro-preview" data-provider="gemini">
+                            <label for="gemini-3-pro">
+                                Gemini 3 Pro<span class="param-tooltip" title="Requires higher-tier Gemini API plan to avoid stricter rate limits.">*</span>
+                            </label>
+                            <input type="text" id="gemini-3-pro-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
                         </div>
                         <div class="model-option">
-                            <input type="checkbox" id="gemini-flash-8b" value="gemini-1.5-flash-8b" data-provider="gemini">
-                            <label for="gemini-flash-8b">Gemini 1.5 Flash 8B</label>
-                            <input type="text" id="gemini-flash-8b-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
+                            <input type="checkbox" id="gemini-2-5-pro" value="gemini-2.5-pro" data-provider="gemini">
+                            <label for="gemini-2-5-pro">
+                                Gemini 2.5 Pro<span class="param-tooltip" title="Requires higher-tier Gemini API plan to avoid stricter rate limits.">*</span>
+                            </label>
+                            <input type="text" id="gemini-2-5-pro-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="gemini-2-5-flash" value="gemini-2.5-flash" data-provider="gemini">
+                            <label for="gemini-2-5-flash">Gemini 2.5 Flash</label>
+                            <input type="text" id="gemini-2-5-flash-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="gemini-2-5-flash-lite" value="gemini-2.5-flash-lite" data-provider="gemini">
+                            <label for="gemini-2-5-flash-lite">Gemini 2.5 Flash-Lite</label>
+                            <input type="text" id="gemini-2-5-flash-lite-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
                         </div>
                     </div>
                 </div>

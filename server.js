@@ -68,27 +68,19 @@ app.post('/chat', async (req, res) => {
         console.log(`Creating context for turn ${session.currentTurn}: story length = ${session.fullContent.length} chars`);
 
         switch (provider) {
-            case 'openai':
+            case 'openai': {
                 const openaiClient = new OpenAI({ apiKey: apiKey });
-                
-                // o1-mini uses different parameters
-                if (modelName === 'o1-mini') {
-                    const openaiResponse = await openaiClient.chat.completions.create({
-                        model: modelName,
-                        messages: currentMessages,
-                        max_completion_tokens: tokensPerTurn, // o1-mini uses max_completion_tokens
-                    });
-                    response = openaiResponse.choices[0].message.content;
-                } else {
-                    const openaiResponse = await openaiClient.chat.completions.create({
-                        model: modelName,
-                        messages: currentMessages,
-                        max_tokens: tokensPerTurn,
-                        temperature: 0.7,
-                    });
-                    response = openaiResponse.choices[0].message.content;
-                }
+
+                const openaiResponse = await openaiClient.chat.completions.create({
+                    model: modelName,
+                    messages: currentMessages,
+                    max_tokens: tokensPerTurn,
+                    temperature: 0.7,
+                });
+
+                response = openaiResponse.choices[0].message.content;
                 break;
+            }
 
             case 'perplexity':
                 const perplexityClient = new OpenAI({
@@ -175,20 +167,42 @@ app.post('/chat', async (req, res) => {
                 const normalizedBase = cfApiBase.replace(/\/$/, '');
                 const cloudflareUrl = `${normalizedBase}/accounts/${cfAccountId}/ai/run/${modelName}`;
                 
-                // Create messages format for Cloudflare (similar to OpenAI format)
-                const cloudflarePayload = {
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Your task is to continue the following piece of writing. You must only output the added content, and must not include this input prompt in the output. Do not repeat any existing text - only add new content to continue."
-                        },
-                        {
-                            role: "user", 
-                            content: `Continue this from where it left off (add only new content, max ${tokensPerTurn} tokens): ${session.fullContent}`
-                        }
-                    ],
-                    max_tokens: tokensPerTurn
-                };
+                // Some Cloudflare model backends are strict about ByteString/ASCII-only inputs.
+                // To avoid failures, sanitize the context to ASCII before sending.
+                const sanitizeToAscii = (text) => text ? text.replace(/[^\x00-\x7F]/g, '?') : '';
+                const safeFullContent = sanitizeToAscii(session.fullContent);
+
+                // Build payload depending on model family.
+                let cloudflarePayload;
+                const isGptOss = modelName.startsWith('@cf/openai/gpt-oss');
+
+                if (isGptOss) {
+                    // GPT-OSS models expect `input` or `requests` at the top level, not `messages`.
+                    const cloudflarePrompt = [
+                        "System: Your task is to continue the following piece of writing. You must only output the added content, and must not include this input prompt in the output. Do not repeat any existing text - only add new content to continue.",
+                        `User: Continue this from where it left off (add only new content, max ${tokensPerTurn} tokens): ${safeFullContent}`
+                    ].join("\\n\\n");
+
+                    cloudflarePayload = {
+                        input: cloudflarePrompt,
+                        max_tokens: tokensPerTurn
+                    };
+                } else {
+                    // Llama, Gemma, Mistral etc. work with a messages-style payload.
+                    cloudflarePayload = {
+                        messages: [
+                            {
+                                role: "system",
+                                content: "Your task is to continue the following piece of writing. You must only output the added content, and must not include this input prompt in the output. Do not repeat any existing text - only add new content to continue."
+                            },
+                            {
+                                role: "user", 
+                                content: `Continue this from where it left off (add only new content, max ${tokensPerTurn} tokens): ${safeFullContent}`
+                            }
+                        ],
+                        max_tokens: tokensPerTurn
+                    };
+                }
                 
                 const cloudflareResponse = await fetch(cloudflareUrl, {
                     method: 'POST',
@@ -208,16 +222,24 @@ app.post('/chat', async (req, res) => {
                 console.log('Cloudflare response structure:', JSON.stringify(cloudflareData, null, 2));
                 
                 // Extract response text from Cloudflare's response format
-                if (cloudflareData.result && cloudflareData.result.response) {
-                    response = cloudflareData.result.response;
-                } else if (cloudflareData.result && cloudflareData.result.choices && cloudflareData.result.choices[0]) {
-                    response = cloudflareData.result.choices[0].message?.content || cloudflareData.result.choices[0].text;
-                } else if (cloudflareData.result && typeof cloudflareData.result === 'string') {
-                    response = cloudflareData.result;
-                } else if (cloudflareData.result && Array.isArray(cloudflareData.result) && cloudflareData.result.length > 0) {
-                    response = cloudflareData.result[0];
+                const resultPayload = cloudflareData.result;
+                const stringifyPayload = (payload) => {
+                    if (payload == null) return '';
+                    return typeof payload === 'string' ? payload : JSON.stringify(payload);
+                };
+
+                if (resultPayload && resultPayload.response) {
+                    response = resultPayload.response;
+                } else if (resultPayload && resultPayload.choices && resultPayload.choices[0]) {
+                    response = resultPayload.choices[0].message?.content || resultPayload.choices[0].text;
+                } else if (resultPayload && typeof resultPayload === 'string') {
+                    response = resultPayload;
+                } else if (Array.isArray(resultPayload) && resultPayload.length > 0) {
+                    response = stringifyPayload(resultPayload[0]);
+                } else if (typeof resultPayload === 'object' && resultPayload !== null) {
+                    response = stringifyPayload(resultPayload);
                 } else {
-                    response = cloudflareData.result || 'No response from Cloudflare';
+                    response = stringifyPayload(cloudflareData);
                 }
                 break;
 
@@ -225,11 +247,19 @@ app.post('/chat', async (req, res) => {
                 throw new Error(`Unsupported provider: ${provider}`);
         }
         
+        // Normalize response to string for downstream processing
+        if (typeof response !== 'string') {
+            response = response != null ? String(response) : '';
+        }
+
         // Clean up response to avoid repetition
         // Note: No trimming to preserve the exact LLM output format
         console.log(`Raw response from ${modelName}: "${response}"`);
         
         // Enhanced repetition detection and removal
+        // Remove repeated assistant labels that some models prepend.
+        response = response.replace(/^(Assistant:\s*)+/i, '');
+
         if (response.startsWith(session.fullContent)) {
             response = response.substring(session.fullContent.length);
             console.log(`Removed full content prefix, remaining: "${response}"`);
@@ -256,10 +286,10 @@ app.post('/chat', async (req, res) => {
             console.log(`Removed ${maxOverlap} overlapping words, remaining: "${response}"`);
         }
         
-        // Final fallback: if response is still problematic, generate a continuation marker
+        // If response is still extremely short after cleanup, just log it
+        // but do not replace it with a placeholder marker.
         if (!response || response.trim().length < 2) {
             console.log(`Response too short after cleanup: "${response}"`);
-            response = `[${modelName} continues...]`;
         }
         
         // Update session state
