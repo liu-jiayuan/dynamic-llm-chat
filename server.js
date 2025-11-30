@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json({ limit: '5mb' }));
 app.use(express.static('.')); // Serve static files
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Global variables to store session state
 const sessions = new Map();
@@ -162,22 +162,18 @@ app.post('/chat', async (req, res) => {
                 break;
 
             case 'cloudflare':
-                // Extract API key and account ID
-                let cfApiKey = apiKey;
-                let cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-                
-                // If API key contains account ID (format: "api_key:account_id"), split it
-                if (apiKey.includes(':')) {
-                    const parts = apiKey.split(':');
-                    cfApiKey = parts[0];
-                    cfAccountId = parts[1];
+                // Use server-side Cloudflare credentials configured via environment variables
+                const cfApiKey = process.env.CLOUDFLARE_API_KEY;
+                const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+                const cfApiBase = process.env.CLOUDFLARE_API_BASE || 'https://api.cloudflare.com/client/v4';
+
+                if (!cfApiKey || !cfAccountId) {
+                    throw new Error('Cloudflare API key and account ID must be configured on the server (CLOUDFLARE_API_KEY and CLOUDFLARE_ACCOUNT_ID).');
                 }
-                
-                if (!cfAccountId) {
-                    throw new Error('Cloudflare Account ID is required. Use format "api_key:account_id" or set CLOUDFLARE_ACCOUNT_ID environment variable');
-                }
-                
-                const cloudflareUrl = `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${modelName}`;
+
+                // Normalize base URL to avoid duplicate slashes
+                const normalizedBase = cfApiBase.replace(/\/$/, '');
+                const cloudflareUrl = `${normalizedBase}/accounts/${cfAccountId}/ai/run/${modelName}`;
                 
                 // Create messages format for Cloudflare (similar to OpenAI format)
                 const cloudflarePayload = {

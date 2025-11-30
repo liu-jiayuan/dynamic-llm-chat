@@ -7,9 +7,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f5f5f7;
     min-height: 100vh;
-    color: #333;
+    color: #1f2933;
     line-height: 1.6;
 }
 
@@ -21,19 +21,49 @@ body {
 
 header {
     text-align: center;
-    color: white;
+    color: #1a202c;
     margin-bottom: 30px;
 }
 
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: none;
 }
 
 header p {
     font-size: 1.1rem;
-    opacity: 0.9;
+    opacity: 0.95;
+}
+
+.api-note {
+    font-size: 0.85rem;
+    color: #4a5568;
+    margin-top: 4px;
+}
+
+.api-help {
+    display: inline-block;
+    margin-left: 6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #4a5568;
+    text-align: center;
+    line-height: 16px;
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.api-help:hover {
+    background: #cbd5e0;
+}
+
+.param-tooltip {
+    cursor: help;
+    color: #718096;
+    margin-left: 4px;
 }
 
 /* Card Styles */
@@ -370,4 +400,20 @@ header p {
 
 .conversation-display::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
+}
+
+.app-footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.app-footer a {
+    color: #fbd38d;
+    text-decoration: underline;
+}
+
+.app-footer a:hover {
+    color: #f6ad55;
 }

@@ -34,7 +34,13 @@ class LLMTokenGenerator {
                 apiKey: apiKeyInput ? apiKeyInput.value : '',
                 displayName: checkbox.nextElementSibling.textContent
             };
-        }).filter(model => model.apiKey.trim() !== '');
+        }).filter(model => {
+            // Cloudflare 使用后端环境变量中的密钥，不需要用户输入
+            if (model.provider === 'cloudflare') {
+                return true;
+            }
+            return model.apiKey.trim() !== '';
+        });
         
         console.log('Selected models:', this.selectedModels);
         this.updateStartButtonState();
@@ -51,14 +57,20 @@ class LLMTokenGenerator {
         const prompt = document.getElementById('user-prompt').value.trim();
         const tokensPerTurn = parseInt(document.getElementById('tokens-per-turn').value) || 5;
         const maxTurns = parseInt(document.getElementById('max-turns').value) || 50;
+        const totalBudget = tokensPerTurn * maxTurns;
         
         if (this.selectedModels.length === 0) {
-            alert('Please select at least one model and enter the corresponding API keys!');
+            alert('Please select at least one model (and enter API keys where required)!');
             return;
         }
         
         if (!prompt) {
             alert('Please enter an initial prompt!');
+            return;
+        }
+
+        if (totalBudget > 5000) {
+            alert('Please ensure that (Tokens per Turn) × (Max Turns) is at most 5000 to keep the demo efficient.');
             return;
         }
         
@@ -278,6 +290,40 @@ document.addEventListener('DOMContentLoaded', () => {
             generator.updateSelectedModels();
         });
     });
-    
+
+    // 冷启动提示：提醒用户首次访问可能需要等待一段时间
+    const header = document.querySelector('header');
+    if (header && header.parentNode) {
+        const notice = document.createElement('div');
+        notice.textContent = '提示：本服务使用免费托管，首次或长时间未访问后重新打开时，后台唤醒可能需要约 1 分钟，请耐心等待。';
+        notice.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+        notice.style.color = '#4a5568';
+        notice.style.padding = '10px 16px';
+        notice.style.borderRadius = '8px';
+        notice.style.margin = '10px auto 20px';
+        notice.style.maxWidth = '900px';
+        notice.style.fontSize = '14px';
+        notice.style.textAlign = 'center';
+        notice.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '知道了';
+        closeBtn.style.marginLeft = '12px';
+        closeBtn.style.padding = '4px 10px';
+        closeBtn.style.fontSize = '12px';
+        closeBtn.style.borderRadius = '999px';
+        closeBtn.style.border = 'none';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.backgroundColor = '#4299e1';
+        closeBtn.style.color = '#ffffff';
+
+        closeBtn.addEventListener('click', () => {
+            notice.remove();
+        });
+
+        notice.appendChild(closeBtn);
+        header.parentNode.insertBefore(notice, header.nextSibling);
+    }
+
     console.log('🚀 Multi-LLM Token Generator initialized!');
 });

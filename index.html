@@ -39,42 +39,103 @@
 <body>
     <div class="container">
         <header>
-            <h1>🤖 Multi-LLM Token Generator</h1>
-            <p>Select multiple LLM models and let them alternately generate specified number of tokens</p>
+            <h1>FOCAL LLM Alternating Chat Demo</h1>
+            <p>
+                This demo alternately samples tokens from multiple LLMs. Select the models you want to compare, set the tokens per turn and maximum number of turns, then start generation. The selected LLMs will take turns generating short continuations conditioned on the shared context.
+            </p>
         </header>
 
         <div class="setup-section">
             <div class="card">
                 <h2>1. Select Models and API Keys</h2>
+
+                <!-- Category 1: Cloudflare models (no API key needed) -->
+                <h3>Category 1: Cloudflare models (no API key needed)</h3>
+                <p class="api-note">Using server-side API credentials; no API key input required for these models before June 2026.</p>
+                <div class="models-grid" style="margin-top: 10px;">
+                    <!-- Cloudflare Workers AI Models -->
+                    <div class="model-group">
+                        <h3>🌤️ Cloudflare Workers AI</h3>
+                        <div class="model-option">
+                            <input type="checkbox" id="gpt-oss-120b-cf" value="@cf/openai/gpt-oss-120b" data-provider="cloudflare">
+                            <label for="gpt-oss-120b-cf">GPT-OSS-120B</label>
+                            <input type="text" id="gpt-oss-120b-cf-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="gpt-oss-20b-cf" value="@cf/openai/gpt-oss-20b" data-provider="cloudflare">
+                            <label for="gpt-oss-20b-cf">GPT-OSS-20B</label>
+                            <input type="text" id="gpt-oss-20b-cf-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="llama-4-scout" value="@cf/meta/llama-4-scout-17b-16e-instruct" data-provider="cloudflare">
+                            <label for="llama-4-scout">Llama 4 Scout 17B</label>
+                            <input type="text" id="llama-4-scout-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="llama-3-3-70b" value="@cf/meta/llama-3.3-70b-instruct-fp8-fast" data-provider="cloudflare">
+                            <label for="llama-3-3-70b">Llama 3.3 70B Fast</label>
+                            <input type="text" id="llama-3-3-70b-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="llama-3-1-8b-fast" value="@cf/meta/llama-3.1-8b-instruct-fast" data-provider="cloudflare">
+                            <label for="llama-3-1-8b-fast">Llama 3.1 8B Fast</label>
+                            <input type="text" id="llama-3-1-8b-fast-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="gemma-3-12b" value="@cf/google/gemma-3-12b-it" data-provider="cloudflare">
+                            <label for="gemma-3-12b">Gemma 3 12B</label>
+                            <input type="text" id="gemma-3-12b-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="mistral-small" value="@cf/mistral/mistral-small-3.1-24b-instruct" data-provider="cloudflare">
+                            <label for="mistral-small">Mistral Small 3.1 24B</label>
+                            <input type="text" id="mistral-small-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                        <div class="model-option">
+                            <input type="checkbox" id="qwq-32b" value="@cf/qwen/qwq-32b" data-provider="cloudflare">
+                            <label for="qwq-32b">QwQ 32B</label>
+                            <input type="text" id="qwq-32b-key" placeholder="Server-configured (no key needed)" class="api-key-input" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 2: Providers requiring user API keys -->
+                <h3 style="margin-top: 24px;">Category 2: Bring-your-own API keys</h3>
+                <p class="api-note">For the providers below, you need to obtain your own API keys. Click the ? icons for where to get them.</p>
+
                 <!-- First Row: OpenAI and Perplexity -->
-                <div class="models-grid">
+                <div class="models-grid" style="margin-top: 10px;">
                     <!-- OpenAI Models -->
                     <div class="model-group">
-                        <h3>OpenAI</h3>
+                        <h3>OpenAI
+                            <a href="https://platform.openai.com/api-keys" target="_blank" class="api-help" title="Where to get an OpenAI API key">?</a>
+                        </h3>
                         <div class="model-option">
                             <input type="checkbox" id="gpt-4o-mini" value="gpt-4o-mini" data-provider="openai">
                             <label for="gpt-4o-mini">GPT-4o-mini</label>
-                            <input type="text" id="gpt-4o-mini-key" placeholder="OpenAI API Key" class="api-key-input">
+                            <input type="text" id="gpt-4o-mini-key" placeholder="Enter your own OpenAI API Key" class="api-key-input">
                         </div>
                         <div class="model-option">
                             <input type="checkbox" id="o1-mini" value="o1-mini" data-provider="openai">
                             <label for="o1-mini">O1-Mini</label>
-                            <input type="text" id="o1-mini-key" placeholder="OpenAI API Key" class="api-key-input">
+                            <input type="text" id="o1-mini-key" placeholder="Enter your own OpenAI API Key" class="api-key-input">
                         </div>
                     </div>
 
                     <!-- Perplexity Models -->
                     <div class="model-group">
-                        <h3>Perplexity</h3>
+                        <h3>Perplexity
+                            <a href="https://www.perplexity.ai/settings/api" target="_blank" class="api-help" title="Where to get a Perplexity API key">?</a>
+                        </h3>
                         <div class="model-option">
                             <input type="checkbox" id="sonar-pro" value="sonar-pro" data-provider="perplexity">
                             <label for="sonar-pro">Sonar Pro</label>
-                            <input type="text" id="sonar-pro-key" placeholder="Perplexity API Key" class="api-key-input">
+                            <input type="text" id="sonar-pro-key" placeholder="Enter your own Perplexity API Key" class="api-key-input">
                         </div>
                         <div class="model-option">
                             <input type="checkbox" id="sonar" value="sonar" data-provider="perplexity">
                             <label for="sonar">Sonar</label>
-                            <input type="text" id="sonar-key" placeholder="Perplexity API Key" class="api-key-input">
+                            <input type="text" id="sonar-key" placeholder="Enter your own Perplexity API Key" class="api-key-input">
                         </div>
                     </div>
                 </div>
@@ -83,79 +144,35 @@
                 <div class="models-grid" style="margin-top: 20px;">
                     <!-- DeepSeek Models -->
                     <div class="model-group">
-                        <h3>DeepSeek</h3>
+                        <h3>DeepSeek
+                            <a href="https://platform.deepseek.com/api_keys" target="_blank" class="api-help" title="Where to get a DeepSeek API key">?</a>
+                        </h3>
                         <div class="model-option">
                             <input type="checkbox" id="deepseek-chat" value="deepseek-chat" data-provider="deepseek">
                             <label for="deepseek-chat">DeepSeek Chat</label>
-                            <input type="text" id="deepseek-chat-key" placeholder="DeepSeek API Key" class="api-key-input">
+                            <input type="text" id="deepseek-chat-key" placeholder="Enter your own DeepSeek API Key" class="api-key-input">
                         </div>
                         <div class="model-option">
                             <input type="checkbox" id="deepseek-reasoner" value="deepseek-reasoner" data-provider="deepseek">
                             <label for="deepseek-reasoner">DeepSeek Reasoner</label>
-                            <input type="text" id="deepseek-reasoner-key" placeholder="DeepSeek API Key" class="api-key-input">
+                            <input type="text" id="deepseek-reasoner-key" placeholder="Enter your own DeepSeek API Key" class="api-key-input">
                         </div>
                     </div>
 
                     <!-- Gemini Models -->
                     <div class="model-group">
-                        <h3>Google Gemini</h3>
+                        <h3>Google Gemini
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="api-help" title="Where to get a Google Gemini API key">?</a>
+                        </h3>
                         <div class="model-option">
                             <input type="checkbox" id="gemini-flash" value="gemini-1.5-flash" data-provider="gemini">
                             <label for="gemini-flash">Gemini 1.5 Flash</label>
-                            <input type="text" id="gemini-flash-key" placeholder="Gemini API Key" class="api-key-input">
+                            <input type="text" id="gemini-flash-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
                         </div>
                         <div class="model-option">
                             <input type="checkbox" id="gemini-flash-8b" value="gemini-1.5-flash-8b" data-provider="gemini">
                             <label for="gemini-flash-8b">Gemini 1.5 Flash 8B</label>
-                            <input type="text" id="gemini-flash-8b-key" placeholder="Gemini API Key" class="api-key-input">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Third Row: Cloudflare Workers AI -->
-                <div class="models-grid" style="margin-top: 20px;">
-                    <!-- Cloudflare Workers AI Models -->
-                    <div class="model-group">
-                        <h3>🌤️ Cloudflare Workers AI</h3>
-                        <div class="model-option">
-                            <input type="checkbox" id="gpt-oss-120b-cf" value="@cf/openai/gpt-oss-120b" data-provider="cloudflare">
-                            <label for="gpt-oss-120b-cf">GPT-OSS-120B</label>
-                            <input type="text" id="gpt-oss-120b-cf-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="gpt-oss-20b-cf" value="@cf/openai/gpt-oss-20b" data-provider="cloudflare">
-                            <label for="gpt-oss-20b-cf">GPT-OSS-20B</label>
-                            <input type="text" id="gpt-oss-20b-cf-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="llama-4-scout" value="@cf/meta/llama-4-scout-17b-16e-instruct" data-provider="cloudflare">
-                            <label for="llama-4-scout">Llama 4 Scout 17B</label>
-                            <input type="text" id="llama-4-scout-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="llama-3-3-70b" value="@cf/meta/llama-3.3-70b-instruct-fp8-fast" data-provider="cloudflare">
-                            <label for="llama-3-3-70b">Llama 3.3 70B Fast</label>
-                            <input type="text" id="llama-3-3-70b-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="llama-3-1-8b-fast" value="@cf/meta/llama-3.1-8b-instruct-fast" data-provider="cloudflare">
-                            <label for="llama-3-1-8b-fast">Llama 3.1 8B Fast</label>
-                            <input type="text" id="llama-3-1-8b-fast-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="gemma-3-12b" value="@cf/google/gemma-3-12b-it" data-provider="cloudflare">
-                            <label for="gemma-3-12b">Gemma 3 12B</label>
-                            <input type="text" id="gemma-3-12b-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="mistral-small" value="@cf/mistral/mistral-small-3.1-24b-instruct" data-provider="cloudflare">
-                            <label for="mistral-small">Mistral Small 3.1 24B</label>
-                            <input type="text" id="mistral-small-key" placeholder="API Key:Account ID" class="api-key-input">
-                        </div>
-                        <div class="model-option">
-                            <input type="checkbox" id="qwq-32b" value="@cf/qwen/qwq-32b" data-provider="cloudflare">
-                            <label for="qwq-32b">QwQ 32B</label>
-                            <input type="text" id="qwq-32b-key" placeholder="API Key:Account ID" class="api-key-input">
+                            <input type="text" id="gemini-flash-8b-key" placeholder="Enter your own Gemini API Key" class="api-key-input">
                         </div>
                     </div>
                 </div>
@@ -165,11 +182,17 @@
                 <h2>2. Configure Parameters</h2>
                 <div class="param-section">
                     <div class="param-group">
-                        <label for="tokens-per-turn">Tokens per Turn:</label>
+                        <label for="tokens-per-turn">
+                            Tokens per Turn
+                            <span class="param-tooltip" title="For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.">*</span>:
+                        </label>
                         <input type="number" id="tokens-per-turn" value="5" min="1" max="100">
                     </div>
                     <div class="param-group">
-                        <label for="max-turns">Max Turns:</label>
+                        <label for="max-turns">
+                            Max Turns
+                            <span class="param-tooltip" title="For stability and cost control, please ensure that (Tokens per Turn) × (Max Turns) ≤ 5000.">*</span>:
+                        </label>
                         <input type="number" id="max-turns" value="30" min="1" max="100">
                     </div>
                 </div>
@@ -202,6 +225,14 @@
             <h3>Pure Text Output</h3>
             <div id="text-only-display" class="text-output"></div>
         </div>
+
+        <footer class="app-footer">
+            <p>
+                Have improvement ideas or issues?
+                Email
+                <a href="mailto:jiayuan4@andrew.cmu.edu">jiayuan4@andrew.cmu.edu</a>.
+            </p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
